@@ -2,6 +2,11 @@ package user
 
 import (
 	"errors"
+	"os"
+	"strconv"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -23,4 +28,15 @@ func (s *Service) FindByEmail(email string) (*User, error) {
 		return nil, errors.New("user not found")
 	}
 	return &user, nil
+}
+
+func (s *Service) GenerateJWT(userID uint) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": strconv.Itoa(int(userID)),
+		"exp":     time.Now().Add(time.Hour * 24).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 }
