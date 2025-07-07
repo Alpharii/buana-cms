@@ -2,6 +2,7 @@ package main
 
 import (
 	"buana-cms/config"
+	mstbarang "buana-cms/internal/mst-barang"
 	"buana-cms/internal/user"
 	"log"
 	"os"
@@ -16,16 +17,21 @@ func main() {
 	}
 
 	config.ConnectDB()
-	config.DB.AutoMigrate(&user.User{})
+	config.DB.AutoMigrate(&user.User{}, &mstbarang.Barang{})
 
 	app := fiber.New()
 
 	api := app.Group("/api")
 
-	// Inisialisasi user module
+	// user module
 	userService := user.NewService(config.DB)
 	userHandler := user.NewHandler(userService)
 	user.RegisterRoutes(api.Group("/users"), userHandler)
+
+	//baranf module
+	barangService := mstbarang.NewService(config.DB)
+	barangHandler := mstbarang.NewHandler(barangService)
+	mstbarang.RegisterRoutes(api, barangHandler)
 
 	log.Fatal(app.Listen(":" + os.Getenv("PORT")))
 }
