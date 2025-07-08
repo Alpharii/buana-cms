@@ -1,6 +1,10 @@
 package mstbarang
 
-import "gorm.io/gorm"
+import (
+	mstkategori "buana-cms/internal/mst-category"
+
+	"gorm.io/gorm"
+)
 
 type Barang struct {
 	gorm.Model
@@ -9,6 +13,8 @@ type Barang struct {
 	Deskripsi  string  `json:"deskripsi"`
 	Stok       int     `json:"stok"`
 	Satuan     string  `json:"satuan"`
-	// KategoriID uint    `json:"kategori_id"` // opsional dulu
-	Gambar string `json:"gambar"`
+	Gambar     string  `json:"gambar"`
+
+	KategoriID uint                      `json:"kategori_id"`
+	Kategori   mstkategori.Kategori `gorm:"foreignKey:KategoriID" json:"kategori,omitempty"`
 }

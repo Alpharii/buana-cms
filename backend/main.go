@@ -4,6 +4,7 @@ import (
 	"buana-cms/app"
 	"buana-cms/config"
 	mstbarang "buana-cms/internal/mst-barang"
+	mstkategori "buana-cms/internal/mst-category"
 	mstklien "buana-cms/internal/mst-klien"
 	"buana-cms/internal/user"
 	"log"
@@ -23,6 +24,7 @@ func main() {
 	// Auto migrate all models
 	config.DB.AutoMigrate(
 		&user.User{},
+		&mstkategori.Kategori{},
 		&mstbarang.Barang{},
 		&mstklien.Klien{},
 	)

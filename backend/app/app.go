@@ -3,6 +3,7 @@ package app
 import (
 	"buana-cms/config"
 	mstbarang "buana-cms/internal/mst-barang"
+	mstkategori "buana-cms/internal/mst-category"
 	mstklien "buana-cms/internal/mst-klien"
 	"buana-cms/internal/user"
 
@@ -26,4 +27,8 @@ func InitModules(app *fiber.App) {
 	klienService := mstklien.NewService(config.DB)
 	klienHandler := mstklien.NewHandler(klienService)
 	mstklien.RegisterRoutes(api, klienHandler)
+
+	kategoriService := mstkategori.NewService(config.DB)
+	kategoriHandler := mstkategori.NewHandler(kategoriService)
+	mstkategori.RegisterRoutes(api, kategoriHandler)
 }
