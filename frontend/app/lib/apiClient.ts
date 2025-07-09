@@ -1,9 +1,11 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000 ', // Ganti sesuai backend kamu
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api', // Ganti sesuai backend kamu
   timeout: 10_000, // 10 detik timeout
 })
+
+console.log(import.meta.env.VITE_API_URL)
 
 // Tambahkan interceptor jika butuh token otomatis
 apiClient.interceptors.request.use(

@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ isLoading: true, error: null })
 
     try {
-      const res = await apiClient.post('/auth/login', { email, password })
+      const res = await apiClient.post('/users/login', { email, password })
       const { token, user } = res.data
 
       localStorage.setItem('token', token)
