@@ -1,62 +1,95 @@
 // app/routes/__preauth+/login.tsx
-import { FormEvent } from "react"
-import { useNavigate, Link } from "@remix-run/react"
-import { useAuthStore } from "~/store/authStore"
+import {
+  json,
+  type ActionFunctionArgs,
+  createCookie,
+  type LoaderFunctionArgs,
+} from "@remix-run/node"
+import { Form, useActionData, useNavigation } from "@remix-run/react"
+import { useForm } from "react-hook-form"
 import { Input } from "~/components/ui/input"
 import { Button } from "~/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
 import { Label } from "~/components/ui/label"
-import { toast } from "sonner"
 import { LockKeyhole } from "lucide-react"
+import { useEffect } from "react"
+import { toast } from "sonner"
+import { redirect } from "@remix-run/node"
+import { apiClient } from "~/lib/apiClient"
+
+type FormInputs = {
+  email: string
+  password: string
+}
+
+export const tokenCookie = createCookie("token", {
+  httpOnly: true,
+  path: "/",
+  sameSite: "lax",
+  // secure: process.env.NODE_ENV === "production",
+  maxAge: 60 * 60 * 24,
+})
+
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData()
+  const email = formData.get("email")
+  const password = formData.get("password")
+
+
+  if (typeof email !== "string" || typeof password !== "string") {
+    return json({ error: "Email dan password wajib diisi" }, { status: 400 })
+  }
+
+  try {
+    const res = await apiClient.post("/users/login", { email, password })
+    const token = res.data.token
+
+    return redirect("/dashboard", {
+      headers: {
+        "Set-Cookie": await tokenCookie.serialize(token),
+      },
+    })
+  } catch (error: any) {
+    console.log('error',error)
+    const message = error.response?.data?.message || "Login gagal"
+    return json({ error: message }, { status: 401 })
+  }
+}
 
 export default function LoginPage() {
-  const { login, error, isLoading } = useAuthStore()
-  const navigate = useNavigate()
+  const actionData = useActionData<typeof action>()
+  const navigation = useNavigation()
+  const isSubmitting = navigation.state === "submitting"
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get("email") as string
-    const password = formData.get("password") as string
+  const { register, handleSubmit } = useForm<FormInputs>()
 
-    await login(email, password)
-
-    if (!error) {
-      toast.success("Berhasil login")
-      navigate("/dashboard")
+  useEffect(() => {
+    if (actionData?.error) {
+      toast.error(actionData.error)
     }
-  }
+  }, [actionData?.error])
 
   return (
     <Card className="w-full shadow-lg">
       <CardHeader className="text-center space-y-1">
         <LockKeyhole className="mx-auto h-10 w-10 text-primary" />
-        <CardTitle className="text-2xl font-semibold tracking-tight">
-          Masuk ke Akun Anda
-        </CardTitle>
+        <CardTitle className="text-2xl font-semibold tracking-tight">Masuk ke Akun Anda</CardTitle>
         <p className="text-sm text-muted-foreground">Gunakan email & password Anda.</p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <Form method="post" onSubmit={handleSubmit(() => {})} className="space-y-4">
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input type="email" id="email" name="email" placeholder="you@example.com" required />
+            <Input id="email" type="email" {...register("email")} required />
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input type="password" id="password" name="password" placeholder="••••••" required />
+            <Input id="password" type="password" {...register("password")} required />
           </div>
-          {error && <p className="text-sm text-red-500">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Memproses..." : "Masuk"}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? "Memproses..." : "Masuk"}
           </Button>
-        </form>
-        <p className="text-sm text-center text-muted-foreground mt-4">
-          Belum punya akun?{" "}
-          <Link to="/register" className="underline text-primary hover:text-primary/80">
-            Daftar sekarang
-          </Link>
-        </p>
+        </Form>
       </CardContent>
     </Card>
   )

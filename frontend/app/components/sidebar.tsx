@@ -16,7 +16,6 @@ import {
   ShoppingCart,
   LogOut,
 } from "lucide-react";
-import { useAuthStore } from "~/store/authStore";
 import { useNavigate } from "@remix-run/react";
 
 const navItems = [
@@ -28,7 +27,6 @@ const navItems = [
 ];
 
 export function PostauthSidebar() {
-  const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate()
 
   return (
@@ -59,7 +57,6 @@ export function PostauthSidebar() {
       <div className="border-t p-4">
         <button
           onClick={() => {
-            logout(),
             navigate("/login")
           }}
           className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition"

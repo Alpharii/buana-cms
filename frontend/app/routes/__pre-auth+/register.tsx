@@ -3,8 +3,8 @@ import { Input } from '~/components/ui/input'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
 import { Label } from '~/components/ui/label'
-import apiClient from '~/lib/apiClient'
 import { useNavigate } from '@remix-run/react'
+import { apiClient } from '~/lib/apiClient'
 
 export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
