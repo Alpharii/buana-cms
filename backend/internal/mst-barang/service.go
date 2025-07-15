@@ -1,6 +1,8 @@
 package mstbarang
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type Service struct {
 	DB *gorm.DB
@@ -15,14 +17,16 @@ func (s *Service) CreateBarang(b *Barang) error {
 }
 
 func (s *Service) GetAllBarang() ([]Barang, error) {
-	var list []Barang
-	err := s.DB.Find(&list).Error
-	return list, err
+	var data []Barang
+	if err := s.DB.Preload("Kategori").Find(&data).Error; err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 func (s *Service) GetBarangByID(id uint) (*Barang, error) {
 	var b Barang
-	if err := s.DB.First(&b, id).Error; err != nil {
+	if err := s.DB.Preload("Kategori").First(&b, id).Error; err != nil {
 		return nil, err
 	}
 	return &b, nil
