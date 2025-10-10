@@ -97,20 +97,15 @@ Contributions are welcome! Follow these steps to contribute:
 git checkout -b feature/your-feature-name
 ```
 3. Make your changes or improvements.  
-4. Ensure code passes lint and tests:
-```bash
-npm run lint
-npm run test
-```
-5. Commit your changes:
+4. Commit your changes:
 ```bash
 git commit -m "Add new feature: ..."
 ```
-6. Push your branch:
+5. Push your branch:
 ```bash
 git push origin feature/your-feature-name
 ```
-7. Open a **Pull Request** to the `main` branch with a brief description.
+6. Open a **Pull Request** to the `main` branch with a brief description.
 
 ---
 
