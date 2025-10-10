@@ -6,14 +6,14 @@ import (
 	mstbarang "buana-cms/internal/mst-barang"
 	mstkategori "buana-cms/internal/mst-category"
 	mstklien "buana-cms/internal/mst-klien"
+	salesorder "buana-cms/internal/sales-order"
 	"buana-cms/internal/user"
 	"log"
 	"os"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/joho/godotenv"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -29,6 +29,8 @@ func main() {
 		&mstkategori.Kategori{},
 		&mstbarang.Barang{},
 		&mstklien.Klien{},
+		&salesorder.SalesOrder{},
+		&salesorder.SalesOrderItem{},
 	)
 
 	appInstance := fiber.New()

@@ -3,18 +3,11 @@ import {
   json,
   type ActionFunctionArgs,
   createCookie,
-  type LoaderFunctionArgs,
+  redirect,
 } from "@remix-run/node"
 import { Form, useActionData, useNavigation } from "@remix-run/react"
 import { useForm } from "react-hook-form"
-import { Input } from "~/components/ui/input"
-import { Button } from "~/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
-import { Label } from "~/components/ui/label"
-import { LockKeyhole } from "lucide-react"
-import { useEffect } from "react"
-import { toast } from "sonner"
-import { redirect } from "@remix-run/node"
+import { useEffect, useState } from "react"
 import { apiClient } from "~/lib/apiClient"
 
 type FormInputs = {
@@ -26,7 +19,6 @@ export const tokenCookie = createCookie("token", {
   httpOnly: true,
   path: "/",
   sameSite: "lax",
-  // secure: process.env.NODE_ENV === "production",
   maxAge: 60 * 60 * 24,
 })
 
@@ -34,7 +26,6 @@ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData()
   const email = formData.get("email")
   const password = formData.get("password")
-
 
   if (typeof email !== "string" || typeof password !== "string") {
     return json({ error: "Email dan password wajib diisi" }, { status: 400 })
@@ -50,7 +41,6 @@ export async function action({ request }: ActionFunctionArgs) {
       },
     })
   } catch (error: any) {
-    console.log('error',error)
     const message = error.response?.data?.message || "Login gagal"
     return json({ error: message }, { status: 401 })
   }
@@ -60,37 +50,66 @@ export default function LoginPage() {
   const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const isSubmitting = navigation.state === "submitting"
-
   const { register, handleSubmit } = useForm<FormInputs>()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   useEffect(() => {
     if (actionData?.error) {
-      toast.error(actionData.error)
+      setErrorMessage(actionData.error)
     }
-  }, [actionData?.error])
+  }, [actionData])
+
 
   return (
-    <Card className="w-full shadow-lg">
-      <CardHeader className="text-center space-y-1">
-        <LockKeyhole className="mx-auto h-10 w-10 text-primary" />
-        <CardTitle className="text-2xl font-semibold tracking-tight">Masuk ke Akun Anda</CardTitle>
-        <p className="text-sm text-muted-foreground">Gunakan email & password Anda.</p>
-      </CardHeader>
-      <CardContent>
-        <Form method="post" onSubmit={handleSubmit(() => {})} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" {...register("email")} required />
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-black">
+      <div className="w-full max-w-md bg-white p-8 rounded shadow-md">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold">Masuk ke Akun Anda</h2>
+          <p className="text-sm text-gray-600">Gunakan email dan password Anda</p>
+        </div>
+
+        {errorMessage && (
+          <div className="mb-4 px-4 py-2 bg-red-100 text-red-700 rounded text-sm text-center">
+            {errorMessage}
           </div>
+        )}
+
+        <Form method="post" onSubmit={handleSubmit(() => {})} className="space-y-5">
           <div>
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" {...register("password")} required />
+            <label htmlFor="email" className="block text-sm font-medium">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              {...register("email")}
+              required
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
           </div>
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              {...register("password")}
+              required
+              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
             {isSubmitting ? "Memproses..." : "Masuk"}
-          </Button>
+          </button>
         </Form>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

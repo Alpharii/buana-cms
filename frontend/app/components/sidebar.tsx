@@ -55,15 +55,15 @@ export function PostauthSidebar() {
       </SidebarContent>
 
       <div className="border-t p-4">
-        <button
-          onClick={() => {
-            navigate("/login")
-          }}
-          className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition"
-        >
-          <LogOut className="w-5 h-5" />
-          Logout
-        </button>
+        <form method="post" action="/login">
+          <button
+            type="submit"
+            className="flex items-center gap-2 text-sm text-red-500 hover:text-red-600 transition"
+          >
+            <LogOut className="w-5 h-5" />
+            Logout
+          </button>
+        </form>
       </div>
     </Sidebar>
   );
