@@ -216,8 +216,8 @@ export default function TambahSalesOrder() {
                   className="border rounded-md w-full px-3 py-2 bg-white"
                 >
                   <option value="draft">Draft</option>
-                  <option value="approved">Approved</option>
-                  <option value="done">Done</option>
+                  <option value="approved">Delivered</option>
+                  <option value="done">Paid</option>
                 </select>
               </div>
             </div>

@@ -1,14 +1,25 @@
-// app/routes/__preauth+/login.tsx
 import {
   json,
   type ActionFunctionArgs,
   createCookie,
   redirect,
 } from "@remix-run/node"
-import { Form, useActionData, useNavigation } from "@remix-run/react"
+import { Form, useActionData, useNavigation, Link } from "@remix-run/react"
 import { useForm } from "react-hook-form"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { apiClient } from "~/lib/apiClient"
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "~/components/ui/card"
+import { Button } from "~/components/ui/button"
+import { Input } from "~/components/ui/input"
+import { Label } from "~/components/ui/label"
+import { Mail, Lock, Loader2 } from "lucide-react"
+import { toast } from "sonner"
 
 type FormInputs = {
   email: string
@@ -19,7 +30,7 @@ export const tokenCookie = createCookie("token", {
   httpOnly: true,
   path: "/",
   sameSite: "lax",
-  maxAge: 60 * 60 * 24,
+  maxAge: 60 * 60 * 24, // 1 hari
 })
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -28,88 +39,110 @@ export async function action({ request }: ActionFunctionArgs) {
   const password = formData.get("password")
 
   if (typeof email !== "string" || typeof password !== "string") {
-    return json({ error: "Email dan password wajib diisi" }, { status: 400 })
+    return json({ success: false, error: "Email dan password wajib diisi" }, { status: 400 })
   }
 
   try {
     const res = await apiClient.post("/users/login", { email, password })
     const token = res.data.token
 
-    return redirect("/dashboard", {
-      headers: {
-        "Set-Cookie": await tokenCookie.serialize(token),
-      },
-    })
+    return json(
+      { success: true },
+      {
+        headers: {
+          "Set-Cookie": await tokenCookie.serialize(token),
+        },
+      }
+    )
   } catch (error: any) {
-    const message = error.response?.data?.message || "Login gagal"
-    return json({ error: message }, { status: 401 })
+    const message = error.response?.data?.error || "Login gagal"
+    return json({ success: false, error: message }, { status: 401 })
   }
 }
 
 export default function LoginPage() {
-  const actionData = useActionData<typeof action>()
+  const actionData = useActionData<any>()
   const navigation = useNavigation()
   const isSubmitting = navigation.state === "submitting"
-  const { register, handleSubmit } = useForm<FormInputs>()
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const { register } = useForm<FormInputs>()
 
   useEffect(() => {
-    if (actionData?.error) {
-      setErrorMessage(actionData.error)
+    console.log('action', actionData)
+    if (actionData?.success) {
+      console.log('masuk')
+      toast.success("Login Berhasil", {
+        description: "Selamat datang kembali!",
+      })
+
+      setTimeout(() => {
+        window.location.href = "/dashboard"
+      }, 1000)
+    } else if (actionData?.error) {
+      toast.error("Gagal Masuk", {
+        description: actionData.error,
+      })
     }
   }, [actionData])
 
-
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 text-black">
-      <div className="w-full max-w-md bg-white p-8 rounded shadow-md">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold">Masuk ke Akun Anda</h2>
-          <p className="text-sm text-gray-600">Gunakan email dan password Anda</p>
-        </div>
+    <div className="flex min-h-screen items-center justify-center text-gray-900 px-4">
+      <Card className="w-full max-w-md shadow-xl border-none">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Masuk ke Akun Anda</CardTitle>
+          <CardDescription>Gunakan email dan password Anda</CardDescription>
+        </CardHeader>
 
-        {errorMessage && (
-          <div className="mb-4 px-4 py-2 bg-red-100 text-red-700 rounded text-sm text-center">
-            {errorMessage}
+        <CardContent>
+          {/* Hapus handleSubmit kosong — biarkan Form Remix bekerja */}
+          <Form method="post" replace preventScrollReset className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <div className="relative bg-white">
+                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  {...register("email")}
+                  required
+                  className="pl-10 bg-white"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <div className="relative bg-white">
+                <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  {...register("password")}
+                  required
+                  className="pl-10 bg-white"
+                />
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full mt-2"
+            >
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting ? "Memproses..." : "Masuk"}
+            </Button>
+          </Form>
+
+          <div className="text-center mt-4 text-sm text-gray-600">
+            Belum punya akun?{" "}
+            <Link to="/register" className="text-blue-600 hover:underline font-medium">
+              Daftar di sini
+            </Link>
           </div>
-        )}
-
-        <Form method="post" onSubmit={handleSubmit(() => {})} className="space-y-5">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium">
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register("email")}
-              required
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium">
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register("password")}
-              required
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            {isSubmitting ? "Memproses..." : "Masuk"}
-          </button>
-        </Form>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
