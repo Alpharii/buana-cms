@@ -1,72 +1,25 @@
-import {
-  json,
-  type ActionFunctionArgs,
-  createCookie,
-  redirect,
-} from "@remix-run/node"
+// app/routes/__preauth+/login.tsx
 import { Form, useActionData, useNavigation, Link } from "@remix-run/react"
 import { useForm } from "react-hook-form"
 import { useEffect } from "react"
-import { apiClient } from "~/lib/apiClient"
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "~/components/ui/card"
 import { Button } from "~/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Mail, Lock, Loader2 } from "lucide-react"
+import type { action } from "./server" // 🟢 import type saja
 import { toast } from "sonner"
 
-type FormInputs = {
-  email: string
-  password: string
-}
+type FormInputs = { email: string; password: string }
 
-export const tokenCookie = createCookie("token", {
-  httpOnly: true,
-  path: "/",
-  sameSite: "lax",
-  maxAge: 60 * 60 * 24, // 1 hari
-})
-
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData()
-  const email = formData.get("email")
-  const password = formData.get("password")
-
-  if (typeof email !== "string" || typeof password !== "string") {
-    return json({ success: false, error: "Email dan password wajib diisi" }, { status: 400 })
-  }
-
-  try {
-    const res = await apiClient.post("/users/login", { email, password })
-    const token = res.data.token
-
-    return json(
-      { success: true },
-      {
-        headers: {
-          "Set-Cookie": await tokenCookie.serialize(token),
-        },
-      }
-    )
-  } catch (error: any) {
-    const message = error.response?.data?.error || "Login gagal"
-    return json({ success: false, error: message }, { status: 401 })
-  }
-}
+export { action } from "./server" // 🟢 ekspor ulang
 
 export default function LoginPage() {
-  const actionData = useActionData<any>()
+  const actionData = useActionData<typeof action>()
   const navigation = useNavigation()
   const isSubmitting = navigation.state === "submitting"
   const { register } = useForm<FormInputs>()
 
-  //this toast not showing
   useEffect(() => {
     console.log('action', actionData)
     if (actionData?.success) {
@@ -80,7 +33,7 @@ export default function LoginPage() {
       }, 1000)
     } else if (actionData?.error) {
       toast.error("Gagal Masuk", {
-        description: actionData.error,
+        description: "Username atau password salah",
       })
     }
   }, [actionData])
@@ -92,10 +45,8 @@ export default function LoginPage() {
           <CardTitle className="text-2xl font-bold">Masuk ke Akun Anda</CardTitle>
           <CardDescription>Gunakan email dan password Anda</CardDescription>
         </CardHeader>
-
         <CardContent>
-          {/* Hapus handleSubmit kosong — biarkan Form Remix bekerja */}
-          <Form method="post" replace preventScrollReset className="space-y-4">
+          <Form method="post" className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <div className="relative bg-white">
@@ -126,11 +77,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full mt-2"
-            >
+            <Button type="submit" disabled={isSubmitting} className="w-full mt-2">
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isSubmitting ? "Memproses..." : "Masuk"}
             </Button>

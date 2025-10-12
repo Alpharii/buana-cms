@@ -1,6 +1,6 @@
 import { LoaderFunction, redirect } from "@remix-run/node"
 import { setApiToken } from "~/lib/apiClient"
-import { tokenCookie } from "./__pre-auth+/login"
+import { tokenCookie } from "./__pre-auth+/login+/server"
 
 export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get("cookie")
