@@ -2,8 +2,8 @@ import { json, LoaderFunction, redirect } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import { PostauthSidebar } from "~/components/sidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "~/components/ui/sidebar";
-import { tokenCookie } from "./__pre-auth+/login";
 import { apiClient, setApiToken } from "~/lib/apiClient";
+import { tokenCookie } from "./__pre-auth+/login+/server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get("cookie")

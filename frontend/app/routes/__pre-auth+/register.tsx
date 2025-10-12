@@ -103,7 +103,7 @@ export default function RegisterPage() {
             <form method="post" action="/login">
               Sudah punya akun?{" "}
               <button type="submit" className="text-blue-600 hover:underline font-medium">
-                Daftar di sini
+                Login disini
               </button>
             </form>
           </div>
