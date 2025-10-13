@@ -22,6 +22,7 @@ func main() {
 	// Auto migrate all models
 	config.DB.AutoMigrate(
 		&entity.User{},
+		&entity.Profile{},
 		&entity.Kategori{},
 		&entity.Barang{},
 		&entity.Klien{},
@@ -34,6 +35,7 @@ func main() {
 		AllowOrigins: "http://localhost:5173", // Change later
 		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowCredentials: true,
 	}))
 
 	// Inisialisasi semua module

@@ -5,6 +5,7 @@ import (
 	mstbarang "buana-cms/internal/mst-barang"
 	mstkategori "buana-cms/internal/mst-category"
 	mstklien "buana-cms/internal/mst-klien"
+	"buana-cms/internal/profile"
 	salesorder "buana-cms/internal/sales-order"
 	"buana-cms/internal/user"
 
@@ -36,4 +37,8 @@ func InitModules(app *fiber.App) {
 	orderService := salesorder.NewService(config.DB)
 	orderHandler := salesorder.NewHandler(orderService)
 	salesorder.RegisterRoutes(api, orderHandler)
+
+	profileService := profile.NewService(config.DB)
+	profileHandler := profile.NewHandler(profileService)
+	profile.RegisterRoutes(api, profileHandler)
 }

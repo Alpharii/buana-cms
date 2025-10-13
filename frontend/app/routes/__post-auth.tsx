@@ -23,6 +23,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function PostauthLayout() {
   const data: any = useLoaderData()
+  console.log(data)
   return (
     <SidebarProvider>
       <PostauthSidebar />
