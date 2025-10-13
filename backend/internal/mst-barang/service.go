@@ -1,6 +1,8 @@
 package mstbarang
 
 import (
+	"buana-cms/internal/entity"
+
 	"gorm.io/gorm"
 )
 
@@ -12,28 +14,28 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{DB: db}
 }
 
-func (s *Service) CreateBarang(b *Barang) error {
+func (s *Service) CreateBarang(b *entity.Barang) error {
 	return s.DB.Create(b).Error
 }
 
-func (s *Service) GetAllBarang() ([]Barang, error) {
-	var data []Barang
+func (s *Service) GetAllBarang() ([]entity.Barang, error) {
+	var data []entity.Barang
 	if err := s.DB.Preload("Kategori").Find(&data).Error; err != nil {
 		return nil, err
 	}
 	return data, nil
 }
 
-func (s *Service) GetBarangByID(id uint) (*Barang, error) {
-	var b Barang
+func (s *Service) GetBarangByID(id uint) (*entity.Barang, error) {
+	var b entity.Barang
 	if err := s.DB.Preload("Kategori").First(&b, id).Error; err != nil {
 		return nil, err
 	}
 	return &b, nil
 }
 
-func (s *Service) UpdateBarang(id uint, updated *Barang) error {
-	var b Barang
+func (s *Service) UpdateBarang(id uint, updated *entity.Barang) error {
+	var b entity.Barang
 	if err := s.DB.First(&b, id).Error; err != nil {
 		return err
 	}
@@ -41,5 +43,5 @@ func (s *Service) UpdateBarang(id uint, updated *Barang) error {
 }
 
 func (s *Service) DeleteBarang(id uint) error {
-	return s.DB.Delete(&Barang{}, id).Error
+	return s.DB.Delete(&entity.Barang{}, id).Error
 }

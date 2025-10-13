@@ -3,11 +3,7 @@ package main
 import (
 	"buana-cms/app"
 	"buana-cms/config"
-	mstbarang "buana-cms/internal/mst-barang"
-	mstkategori "buana-cms/internal/mst-category"
-	mstklien "buana-cms/internal/mst-klien"
-	salesorder "buana-cms/internal/sales-order"
-	"buana-cms/internal/user"
+	"buana-cms/internal/entity"
 	"log"
 	"os"
 
@@ -25,12 +21,12 @@ func main() {
 
 	// Auto migrate all models
 	config.DB.AutoMigrate(
-		&user.User{},
-		&mstkategori.Kategori{},
-		&mstbarang.Barang{},
-		&mstklien.Klien{},
-		&salesorder.SalesOrder{},
-		&salesorder.SalesOrderItem{},
+		&entity.User{},
+		&entity.Kategori{},
+		&entity.Barang{},
+		&entity.Klien{},
+		&entity.SalesOrder{},
+		&entity.SalesOrderItem{},
 	)
 
 	appInstance := fiber.New()

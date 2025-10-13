@@ -3,7 +3,8 @@ package salesorder
 import (
 	"errors"
 
-	mstbarang "buana-cms/internal/mst-barang"
+	"buana-cms/internal/entity"
+
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,7 @@ func NewService(db *gorm.DB) *Service {
 }
 
 // ✅ CREATE ORDER
-func (s *Service) CreateSalesOrder(order *SalesOrder) error {
+func (s *Service) CreateSalesOrder(order *entity.SalesOrder) error {
 	tx := s.DB.Begin()
 
 	totalHarga := 0.0
@@ -26,7 +27,7 @@ func (s *Service) CreateSalesOrder(order *SalesOrder) error {
 		totalHarga += item.Subtotal
 
 		// ✅ kurangi stok barang (pakai model struct, bukan string)
-		if err := tx.Model(&mstbarang.Barang{}).
+		if err := tx.Model(&entity.Barang{}).
 			Where("id = ?", item.BarangID).
 			UpdateColumn("stok", gorm.Expr("stok - ?", item.Jumlah)).Error; err != nil {
 			tx.Rollback()
@@ -44,8 +45,8 @@ func (s *Service) CreateSalesOrder(order *SalesOrder) error {
 }
 
 // ✅ GET ALL
-func (s *Service) GetAllSalesOrders() ([]SalesOrder, error) {
-	var list []SalesOrder
+func (s *Service) GetAllSalesOrders() ([]entity.SalesOrder, error) {
+	var list []entity.SalesOrder
 	err := s.DB.
 		Preload("Klien").
 		Preload("User").
@@ -56,8 +57,8 @@ func (s *Service) GetAllSalesOrders() ([]SalesOrder, error) {
 }
 
 // ✅ GET BY ID
-func (s *Service) GetSalesOrderByID(id uint) (*SalesOrder, error) {
-	var order SalesOrder
+func (s *Service) GetSalesOrderByID(id uint) (*entity.SalesOrder, error) {
+	var order entity.SalesOrder
 	err := s.DB.
 		Preload("Klien").
 		Preload("User").
@@ -71,8 +72,8 @@ func (s *Service) GetSalesOrderByID(id uint) (*SalesOrder, error) {
 	return &order, nil
 }
 
-func (s *Service) UpdateSalesOrder(id uint, updated *SalesOrder) error {
-	var existing SalesOrder
+func (s *Service) UpdateSalesOrder(id uint, updated *entity.SalesOrder) error {
+	var existing entity.SalesOrder
 	if err := s.DB.Preload("Items").First(&existing, id).Error; err != nil {
 		return err
 	}
@@ -81,7 +82,7 @@ func (s *Service) UpdateSalesOrder(id uint, updated *SalesOrder) error {
 
 	// Kembalikan stok lama
 	for _, item := range existing.Items {
-		if err := tx.Model(&mstbarang.Barang{}).
+		if err := tx.Model(&entity.Barang{}).
 			Where("id = ?", item.BarangID).
 			UpdateColumn("stok", gorm.Expr("stok + ?", item.Jumlah)).Error; err != nil {
 			tx.Rollback()
@@ -90,10 +91,11 @@ func (s *Service) UpdateSalesOrder(id uint, updated *SalesOrder) error {
 	}
 
 	// Hapus semua item lama
-	if err := tx.Where("sales_order_id = ?", existing.ID).Delete(&SalesOrderItem{}).Error; err != nil {
+	if err := tx.Where("sales_order_id = ?", existing.ID).Delete(&entity.SalesOrderItem{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
+
 
 	// Tambah item baru dan hitung total
 	total := 0.0
@@ -103,7 +105,7 @@ func (s *Service) UpdateSalesOrder(id uint, updated *SalesOrder) error {
 		total += newItem.Subtotal
 
 		// Kurangi stok baru
-		if err := tx.Model(&mstbarang.Barang{}).
+		if err := tx.Model(&entity.Barang{}).
 			Where("id = ?", newItem.BarangID).
 			UpdateColumn("stok", gorm.Expr("stok - ?", newItem.Jumlah)).Error; err != nil {
 			tx.Rollback()
@@ -133,7 +135,7 @@ func (s *Service) UpdateSalesOrder(id uint, updated *SalesOrder) error {
 
 // ✅ DELETE (hanya draft)
 func (s *Service) DeleteSalesOrder(id uint) error {
-	var order SalesOrder
+	var order entity.SalesOrder
 	if err := s.DB.Preload("Items").First(&order, id).Error; err != nil {
 		return err
 	}
@@ -146,7 +148,7 @@ func (s *Service) DeleteSalesOrder(id uint) error {
 
 	// ✅ kembalikan stok barang
 	for _, item := range order.Items {
-		if err := tx.Model(&mstbarang.Barang{}).
+		if err := tx.Model(&entity.Barang{}).
 			Where("id = ?", item.BarangID).
 			UpdateColumn("stok", gorm.Expr("stok + ?", item.Jumlah)).Error; err != nil {
 			tx.Rollback()

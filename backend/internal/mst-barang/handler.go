@@ -1,6 +1,7 @@
 package mstbarang
 
 import (
+	"buana-cms/internal/entity"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,7 @@ func NewHandler(s *Service) *Handler {
 }
 
 func (h *Handler) Create(c *fiber.Ctx) error {
-	var input Barang
+	var input entity.Barang
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}
@@ -51,7 +52,7 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid ID"})
 	}
 
-	var input Barang
+	var input entity.Barang
 	if err := c.BodyParser(&input); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
 	}

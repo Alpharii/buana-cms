@@ -1,6 +1,7 @@
 package salesorder
 
 import (
+	"buana-cms/internal/entity"
 	"strconv"
 	"time"
 
@@ -35,7 +36,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 
 	tanggal, _ := time.Parse(time.RFC3339, input.Tanggal)
 
-	order := SalesOrder{
+	order := entity.SalesOrder{
 		NoOrder:  input.NoOrder,
 		Tanggal:  tanggal,
 		UserID:   input.UserID,
@@ -44,7 +45,7 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 	}
 
 	for _, i := range input.Items {
-		order.Items = append(order.Items, SalesOrderItem{
+		order.Items = append(order.Items, entity.SalesOrderItem{
 			BarangID:    i.BarangID,
 			Jumlah:      i.Jumlah,
 			HargaSatuan: i.HargaSatuan,
@@ -102,7 +103,7 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 
 	tanggal, _ := time.Parse(time.RFC3339, input.Tanggal)
 
-	order := SalesOrder{
+	order := entity.SalesOrder{
 		NoOrder: input.NoOrder,
 		Tanggal: tanggal,
 		KlienID: input.KlienID,
@@ -110,7 +111,7 @@ func (h *Handler) Update(c *fiber.Ctx) error {
 	}
 
 	for _, i := range input.Items {
-		order.Items = append(order.Items, SalesOrderItem{
+		order.Items = append(order.Items, entity.SalesOrderItem{
 			BarangID:    i.BarangID,
 			Jumlah:      i.Jumlah,
 			HargaSatuan: i.HargaSatuan,

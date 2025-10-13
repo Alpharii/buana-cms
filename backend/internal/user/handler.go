@@ -1,6 +1,8 @@
 package user
 
 import (
+	"buana-cms/internal/entity"
+
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -14,7 +16,7 @@ func NewHandler(s *Service) *Handler {
 }
 
 func (h *Handler) Register(c *fiber.Ctx) error {
-	var data User
+	var data entity.User
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})
 	}
@@ -59,7 +61,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 
 func (h *Handler) Me(c *fiber.Ctx) error {
 	userID := c.Locals("user_id")
-	var user User
+	var user entity.User
 	if err := h.Service.DB.Where("id = ?", userID).First(&user).Error; err != nil {
 		return nil
 	}

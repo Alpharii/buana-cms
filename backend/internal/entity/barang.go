@@ -1,8 +1,6 @@
-package mstbarang
+package entity
 
 import (
-	mstkategori "buana-cms/internal/mst-category"
-
 	"gorm.io/gorm"
 )
 
@@ -16,5 +14,5 @@ type Barang struct {
 	Gambar     string  `json:"gambar"`
 
 	KategoriID uint                      `json:"kategori_id"`
-	Kategori   mstkategori.Kategori `gorm:"foreignKey:KategoriID" json:"kategori,omitempty"`
+	Kategori  Kategori  `gorm:"foreignKey:KategoriID" json:"kategori,omitempty"`
 }

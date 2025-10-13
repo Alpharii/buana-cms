@@ -1,6 +1,7 @@
 package user
 
 import (
+	"buana-cms/internal/entity"
 	"errors"
 	"os"
 	"strconv"
@@ -18,12 +19,12 @@ func NewService(db *gorm.DB) *Service {
 	return &Service{DB: db}
 }
 
-func (s *Service) Create(user *User) error {
+func (s *Service) Create(user *entity.User) error {
 	return s.DB.Create(user).Error
 }
 
-func (s *Service) FindByEmail(email string) (*User, error) {
-	var user User
+func (s *Service) FindByEmail(email string) (*entity.User, error) {
+	var user entity.User
 	if err := s.DB.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, errors.New("user not found")
 	}
