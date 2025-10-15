@@ -60,12 +60,26 @@ func (h *Handler) Create(c *fiber.Ctx) error {
 }
 
 func (h *Handler) GetAll(c *fiber.Ctx) error {
+	start := c.Query("start")
+	end := c.Query("end")
+
+	// jika ada filter tanggal, panggil service dengan filter
+	if start != "" && end != "" {
+		data, err := h.Service.GetSalesOrdersByDateRange(start, end)
+		if err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		return c.JSON(data)
+	}
+
+	// jika tidak ada filter, ambil semua
 	data, err := h.Service.GetAllSalesOrders()
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.JSON(data)
 }
+
 
 func (h *Handler) GetByID(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))

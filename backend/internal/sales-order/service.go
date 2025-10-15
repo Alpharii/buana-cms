@@ -56,6 +56,24 @@ func (s *Service) GetAllSalesOrders() ([]entity.SalesOrder, error) {
 	return list, err
 }
 
+func (s *Service) GetSalesOrdersByDateRange(start, end string) ([]entity.SalesOrder, error) {
+	var list []entity.SalesOrder
+
+	// parsing tanggal ke time.Time (opsional, untuk validasi)
+	// format dari frontend: yyyy-mm-dd
+	// kalau tidak perlu validasi, bisa langsung gunakan string saja di where clause
+	err := s.DB.
+		Preload("Klien").
+		Preload("User").
+		Preload("Items").
+		Preload("Items.Barang").
+		Where("tanggal BETWEEN ? AND ?", start, end).
+		Find(&list).Error
+
+	return list, err
+}
+
+
 // ✅ GET BY ID
 func (s *Service) GetSalesOrderByID(id uint) (*entity.SalesOrder, error) {
 	var order entity.SalesOrder

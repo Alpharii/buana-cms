@@ -15,6 +15,7 @@ import {
   Package,
   ShoppingCart,
   LogOut,
+  User,
 } from "lucide-react";
 import { useNavigate } from "@remix-run/react";
 
@@ -24,6 +25,7 @@ const navItems = [
   { label: "Master Category", icon: ListTree, href: "/mst-category" },
   { label: "Master Barang", icon: Package, href: "/mst-barang" },
   { label: "Order", icon: ShoppingCart, href: "/order" },
+  { label: "Profile", icon: User , href: "/profile/my-profile" },
 ];
 
 export function PostauthSidebar() {

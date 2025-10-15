@@ -2,6 +2,7 @@ package profile
 
 import (
 	"buana-cms/internal/entity"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -29,6 +30,38 @@ func (s *Service) GetProfileByID(id uint) (*entity.Profile, error) {
 	if err := s.DB.First(&profile, id).Error; err != nil {
 		return nil, err
 	}
+	return &profile, nil
+}
+
+func (s *Service) GetProfileWithUserAndSales(id uint, start, end string) (*entity.Profile, error) {
+	var profile entity.Profile
+
+	db := s.DB
+	fmt.Println("profile", profile)
+
+	// preload ke user
+	userPreload := db.Model(&entity.Profile{}).
+		Preload("User") // hubungan Profile → User
+
+	// filter tanggal sales order (jika ada)
+	if start != "" && end != "" {
+		userPreload = userPreload.
+			Preload("User.SalesOrders", "tanggal BETWEEN ? AND ?", start, end)
+	} else {
+		userPreload = userPreload.
+			Preload("User.SalesOrders")
+	}
+
+	// preload relasi lanjutan di bawah SalesOrders
+	userPreload = userPreload.
+		Preload("User.SalesOrders.Klien").
+		Preload("User.SalesOrders.Items").
+		Preload("User.SalesOrders.Items.Barang")
+
+	if err := userPreload.First(&profile, id).Error; err != nil {
+		return nil, err
+	}
+
 	return &profile, nil
 }
 

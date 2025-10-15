@@ -30,10 +30,15 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid ID"})
 	}
-	profile, err := h.Service.GetProfileByID(uint(id))
+
+	start := c.Query("start")
+	end := c.Query("end")
+
+	profile, err := h.Service.GetProfileWithUserAndSales(uint(id), start, end)
 	if err != nil {
-		return c.Status(404).JSON(fiber.Map{"error": "Not found"})
+		return c.Status(404).JSON(fiber.Map{"error": err.Error()})
 	}
+
 	return c.JSON(profile)
 }
 
