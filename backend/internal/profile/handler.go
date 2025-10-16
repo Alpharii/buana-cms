@@ -24,6 +24,49 @@ func (h *Handler) GetAll(c *fiber.Ctx) error {
 	return c.JSON(data)
 }
 
+
+func (h *Handler) GetMyProfile(c *fiber.Ctx) error {
+	// Ambil user_id dari JWT
+	userID := c.Locals("user_id")
+	if userID == nil {
+		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+	var uid uint
+
+	switch v := c.Locals("user_id").(type) {
+	case float64:
+		uid = uint(v)
+	case int:
+		uid = uint(v)
+	case uint:
+		uid = v
+	case string:
+		// kalau di JWT user_id dikodekan sebagai string
+		parsed, err := strconv.Atoi(v)
+		if err != nil {
+			return c.Status(400).JSON(fiber.Map{"error": "invalid user id in token"})
+		}
+		uid = uint(parsed)
+	default:
+		return c.Status(400).JSON(fiber.Map{"error": "unknown user id type"})
+	}
+
+	// Ambil query param optional
+	start := c.Query("start", "")
+	end := c.Query("end", "")
+
+	// Panggil service
+	data, err := h.Service.GetUserWithProfileAndSales(uid, start, end)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{
+			"error": "profile not found or no related data",
+		})
+	}
+
+	return c.JSON(data)
+}
+
+
 // ✅ GET BY ID
 func (h *Handler) GetByID(c *fiber.Ctx) error {
 	id, err := strconv.Atoi(c.Params("id"))
@@ -34,7 +77,7 @@ func (h *Handler) GetByID(c *fiber.Ctx) error {
 	start := c.Query("start")
 	end := c.Query("end")
 
-	profile, err := h.Service.GetProfileWithUserAndSales(uint(id), start, end)
+	profile, err := h.Service.GetUserWithProfileAndSales(uint(id), start, end)
 	if err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": err.Error()})
 	}

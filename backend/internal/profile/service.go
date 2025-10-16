@@ -33,37 +33,52 @@ func (s *Service) GetProfileByID(id uint) (*entity.Profile, error) {
 	return &profile, nil
 }
 
-func (s *Service) GetProfileWithUserAndSales(id uint, start, end string) (*entity.Profile, error) {
+func (s *Service) GetProfileByUserID(userID uint) (*entity.Profile, error) {
 	var profile entity.Profile
 
-	db := s.DB
-	fmt.Println("profile", profile)
+	err := s.DB.
+		Preload("User").
+		Where("user_id = ?", userID).
+		First(&profile).Error
 
-	// preload ke user
-	userPreload := db.Model(&entity.Profile{}).
-		Preload("User") // hubungan Profile → User
+	if err != nil {
+		return nil, err
+	}
+	return &profile, nil
+}
 
-	// filter tanggal sales order (jika ada)
+
+func (s *Service) GetUserWithProfileAndSales(id uint, start, end string) (*entity.User, error) {
+	fmt.Println("hitted service")
+
+	var user entity.User
+
+	query := s.DB.Debug().
+		Model(&entity.User{}).
+		Preload("Profile")
+
+	// preload sales orders (+ nested relasi)
 	if start != "" && end != "" {
-		userPreload = userPreload.
-			Preload("User.SalesOrders", "tanggal BETWEEN ? AND ?", start, end)
+		query = query.
+			Preload("SalesOrders", "tanggal BETWEEN ? AND ?", start, end).
+			Preload("SalesOrders.Klien").
+			Preload("SalesOrders.Items").
+			Preload("SalesOrders.Items.Barang")
 	} else {
-		userPreload = userPreload.
-			Preload("User.SalesOrders")
+		query = query.
+			Preload("SalesOrders").
+			Preload("SalesOrders.Klien").
+			Preload("SalesOrders.Items").
+			Preload("SalesOrders.Items.Barang")
 	}
 
-	// preload relasi lanjutan di bawah SalesOrders
-	userPreload = userPreload.
-		Preload("User.SalesOrders.Klien").
-		Preload("User.SalesOrders.Items").
-		Preload("User.SalesOrders.Items.Barang")
-
-	if err := userPreload.First(&profile, id).Error; err != nil {
+	if err := query.First(&user, id).Error; err != nil {
 		return nil, err
 	}
 
-	return &profile, nil
+	return &user, nil
 }
+
 
 // ✅ Get by Name (first_name OR last_name)
 func (s *Service) GetProfileByName(name string) ([]entity.Profile, error) {

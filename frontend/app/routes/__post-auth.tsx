@@ -12,6 +12,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!token) return redirect("/login")
 
   setApiToken(token)
+  console.log('token', token)
   try{
     const me = await apiClient.get('/users/me')
     return json(me.data)

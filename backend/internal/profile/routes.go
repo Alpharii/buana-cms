@@ -8,6 +8,7 @@ import (
 
 func RegisterRoutes(router fiber.Router, h *Handler) {
 	protected := router.Group("/profile", middleware.Protected())
+	protected.Get("/my-profile", h.GetMyProfile)
 
 	// public
 	protected.Get("/", h.GetAll)

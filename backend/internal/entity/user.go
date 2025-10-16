@@ -1,8 +1,6 @@
 package entity
 
-import (
-	"gorm.io/gorm"
-)
+import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
@@ -10,9 +8,11 @@ type User struct {
 	Email    string `gorm:"unique" json:"email"`
 	Password string `json:"password"`
 
-	ProfileID uint            `json:"profile_id"`
-	Profile   Profile `gorm:"foreignKey:ProfileID" json:"profile,omitempty"`
+	// foreign key ke Profile
+	ProfileID uint     `json:"profile_id"`
+	Profile   Profile  `gorm:"foreignKey:ProfileID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"profile,omitempty"`
 
-	// Relasi ke SalesOrder (1 user bisa punya banyak order)
-	SalesOrders []SalesOrder `gorm:"foreignKey:UserID" json:"sales_orders,omitempty"`
+	// relasi ke SalesOrder (1 user bisa punya banyak order)
+	// tidak membuat kolom di tabel user — hanya virtual relationship
+	SalesOrders []SalesOrder `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"sales_orders,omitempty"`
 }
