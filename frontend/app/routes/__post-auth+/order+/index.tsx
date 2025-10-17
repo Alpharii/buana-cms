@@ -48,14 +48,23 @@ type Klien = {
   nama_pic: string;
 };
 
+type User = {
+  id: number;
+  username: string;
+  email: string;
+  profile: any;
+};
+
+
 type Order = {
   ID: number;
   no_order: string;
   tanggal: string;
   total_harga: number;
   status: string;
-  Klien?: Klien;
+  klien?: Klien;
   items?: Item[];
+  user?: User;
 };
 
 // === Loader & Action ===
@@ -117,6 +126,7 @@ export default function OrderList() {
               <th className="px-4 py-3">Klien</th>
               <th className="px-4 py-3">Total Harga</th>
               <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Dibuat Oleh</th>
               <th className="px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -128,11 +138,12 @@ export default function OrderList() {
                   <td className="px-4 py-3">
                     {new Date(o.tanggal).toLocaleDateString("id-ID")}
                   </td>
-                  <td className="px-4 py-3">{o.Klien?.nama_klien || "-"}</td>
+                  <td className="px-4 py-3">{o.klien?.nama_klien || "-"}</td>
                   <td className="px-4 py-3">
                     Rp {o.total_harga.toLocaleString("id-ID")}
                   </td>
                   <td className="px-4 py-3 capitalize">{o.status}</td>
+                  <td className="px-4 py-3 capitalize">{(o.user?.profile?.firstname + o.user?.profile?.lastname || o.user?.username) || "-"}</td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       {/* === Tombol Detail === */}
@@ -221,14 +232,14 @@ export default function OrderList() {
                         <p><span className="font-medium text-muted-foreground">No Order:</span> {selectedOrder.no_order}</p>
                         <p><span className="font-medium text-muted-foreground">Tanggal:</span> {new Date(selectedOrder.tanggal).toLocaleDateString("id-ID")}</p>
                         <p><span className="font-medium text-muted-foreground">Status:</span> <span className="capitalize">{selectedOrder.status}</span></p>
-                        <p><span className="font-medium text-muted-foreground">PIC:</span> {selectedOrder.Klien?.nama_pic || "-"}</p>
+                        <p><span className="font-medium text-muted-foreground">PIC:</span> {selectedOrder.klien?.nama_pic || "-"}</p>
                     </div>
 
                     <div className="space-y-1.5">
-                        <p><span className="font-medium text-muted-foreground">Klien:</span> {selectedOrder.Klien?.nama_klien}</p>
-                        <p><span className="font-medium text-muted-foreground">Toko:</span> {selectedOrder.Klien?.nama_toko}</p>
-                        <p><span className="font-medium text-muted-foreground">Email:</span> {selectedOrder.Klien?.email}</p>
-                        <p><span className="font-medium text-muted-foreground">No. Telepon:</span> {selectedOrder.Klien?.no_telepon}</p>
+                        <p><span className="font-medium text-muted-foreground">Klien:</span> {selectedOrder.klien?.nama_klien}</p>
+                        <p><span className="font-medium text-muted-foreground">Toko:</span> {selectedOrder.klien?.nama_toko}</p>
+                        <p><span className="font-medium text-muted-foreground">Email:</span> {selectedOrder.klien?.email}</p>
+                        <p><span className="font-medium text-muted-foreground">No. Telepon:</span> {selectedOrder.klien?.no_telepon}</p>
                     </div>
                     </div>
 
