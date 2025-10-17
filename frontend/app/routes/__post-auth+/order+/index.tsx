@@ -94,7 +94,7 @@ export default function OrderList() {
   const navigate = useNavigate();
   console.log('orders', orders)
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
 
   useEffect(() => {
@@ -122,11 +122,11 @@ export default function OrderList() {
           <thead className="bg-muted text-muted-foreground font-medium border-b">
             <tr>
               <th className="px-4 py-3">No Order</th>
-              <th className="px-4 py-3">Tanggal</th>
+              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Klien</th>
               <th className="px-4 py-3">Total Harga</th>
-              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Dibuat Oleh</th>
+              <th className="px-4 py-3">Tanggal</th>
               <th className="px-4 py-3">Aksi</th>
             </tr>
           </thead>
@@ -135,15 +135,23 @@ export default function OrderList() {
               orders.map((o) => (
                 <tr key={o.ID} className="border-t hover:bg-muted/50">
                   <td className="px-4 py-3 font-medium">{o.no_order}</td>
-                  <td className="px-4 py-3">
-                    {new Date(o.tanggal).toLocaleDateString("id-ID")}
-                  </td>
+                  <td className="px-4 py-3 capitalize">{o.status}</td>
                   <td className="px-4 py-3">{o.klien?.nama_klien || "-"}</td>
                   <td className="px-4 py-3">
                     Rp {o.total_harga.toLocaleString("id-ID")}
                   </td>
-                  <td className="px-4 py-3 capitalize">{o.status}</td>
-                  <td className="px-4 py-3 capitalize">{(o.user?.profile?.firstname + o.user?.profile?.lastname || o.user?.username) || "-"}</td>
+                  <td className="px-4 py-3 capitalize">
+                    {o.user?.profile?.first_name || o.user?.profile?.last_name
+                      ? `${o.user.profile.first_name} ${o.user.profile.last_name}`.trim()
+                      : o.user?.username || "-"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {new Date(o.tanggal).toLocaleDateString("id-ID", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-2">
                       {/* === Tombol Detail === */}
@@ -258,7 +266,7 @@ export default function OrderList() {
                         </thead>
                         <tbody>
                             {selectedOrder.items?.length ? (
-                            selectedOrder.items.map((item) => (
+                            selectedOrder.items.map((item: Item) => (
                                 <tr key={item.ID} className="hover:bg-muted/50">
                                 <td className="border px-3 py-2">{item.Barang?.nama_barang}</td>
                                 <td className="border px-3 py-2 text-center">{item.jumlah}</td>

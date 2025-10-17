@@ -50,12 +50,12 @@ func (s *Service) GetAllSalesOrders() ([]entity.SalesOrder, error) {
 	err := s.DB.
 		Preload("Klien").
 		Preload("User").
+		Preload("User.Profile").
 		Preload("Items").
 		Preload("Items.Barang").
 		Find(&list).Error
 	return list, err
 }
-
 func (s *Service) GetSalesOrdersByDateRange(start, end string) ([]entity.SalesOrder, error) {
 	var list []entity.SalesOrder
 
