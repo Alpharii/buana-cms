@@ -1,13 +1,34 @@
-import { json, redirect, type LoaderFunction, type ActionFunctionArgs } from "@remix-run/node"
-import { Form, useLoaderData, useNavigation, useActionData, useNavigate } from "@remix-run/react"
+import {
+  json,
+  redirect,
+  type LoaderFunction,
+  type ActionFunctionArgs,
+} from "@remix-run/node"
+import {
+  Form,
+  useLoaderData,
+  useNavigation,
+  useActionData,
+  useNavigate,
+} from "@remix-run/react"
 import { useForm } from "react-hook-form"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import { Input } from "~/components/ui/input"
 import { Label } from "~/components/ui/label"
 import { Button } from "~/components/ui/button"
-import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "~/components/ui/card"
-import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar"
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardTitle,
+  CardDescription,
+} from "~/components/ui/card"
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "~/components/ui/avatar"
 import { apiClient, setApiToken } from "~/lib/apiClient"
 import { tokenCookie } from "~/routes/__pre-auth+/login+/server"
 
@@ -18,13 +39,15 @@ type ProfileForm = {
   profile_picture: string
 }
 
+//
+// ✅ LOADER
+//
 export const loader: LoaderFunction = async ({ request }) => {
   const cookie = request.headers.get("cookie")
   const token = await tokenCookie.parse(cookie)
   if (!token) return redirect("/login")
 
   setApiToken(token)
-
   try {
     const res = await apiClient.get("/profile/my-profile")
     return json(res.data)
@@ -34,6 +57,9 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 }
 
+//
+// ✅ ACTION (server-side Remix)
+//
 export const action = async ({ request }: ActionFunctionArgs) => {
   const cookie = request.headers.get("cookie")
   const token = await tokenCookie.parse(cookie)
@@ -52,31 +78,55 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   }
 }
 
+//
+// ✅ KOMPONEN PAGE
+//
 export default function EditProfilePage() {
   const { profile, email, username } = useLoaderData<any>()
+  const apiUrl = import.meta.env.VITE_API_URL
   const navigation = useNavigation()
   const isSubmitting = navigation.state === "submitting"
-  const { register, reset } = useForm<ProfileForm>({
+  const { register, setValue } = useForm<ProfileForm>({
     defaultValues: profile,
   })
   const actionData: any = useActionData<typeof action>()
   const navigate = useNavigate()
+  const [preview, setPreview] = useState(profile.profile_picture || "")
 
+  const avatarLetter =
+    profile?.first_name?.[0]?.toUpperCase() ||
+    username?.[0]?.toUpperCase() ||
+    "U"
+
+  // ✅ Notifikasi
   useEffect(() => {
-    if (actionData?.error) {
-      toast.error(actionData.error)
-    }
-
+    if (actionData?.error) toast.error(actionData.error)
     if (actionData?.success) {
       toast.success("Profil berhasil diperbarui")
       navigate("/profile/my-profile")
     }
   }, [actionData, navigate])
 
-  const avatarLetter =
-    profile?.first_name?.[0]?.toUpperCase() ||
-    username?.[0]?.toUpperCase() ||
-    "U"
+  // ✅ Upload gambar ke backend (async)
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const formData = new FormData()
+    formData.append("file", file)
+    try {
+      const res = await apiClient.post("/upload/temp-image", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      const url = res.data.url
+      setPreview(apiUrl + url)
+      setValue("profile_picture", url)
+      toast.success("Gambar berhasil diunggah")
+    } catch (err) {
+      console.error(err)
+      toast.error("Gagal mengunggah gambar")
+    }
+  }
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10 space-y-6">
@@ -85,7 +135,7 @@ export default function EditProfilePage() {
       <Card className="shadow-sm border border-border/40">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={profile.profile_picture} />
+            <AvatarImage src={preview} />
             <AvatarFallback>{avatarLetter}</AvatarFallback>
           </Avatar>
 
@@ -109,6 +159,7 @@ export default function EditProfilePage() {
         </CardHeader>
 
         <CardContent>
+          {/* ✅ Pakai Form Remix, bukan onSubmit */}
           <Form method="post" className="space-y-4">
             <div>
               <Label>Nama Depan</Label>
@@ -122,18 +173,17 @@ export default function EditProfilePage() {
               <Label>Perusahaan</Label>
               <Input {...register("company")} placeholder="Nama perusahaan" />
             </div>
+
             <div>
-              <Label>URL Foto Profil</Label>
-              <Input
-                type="url"
-                {...register("profile_picture")}
-                placeholder="https://contoh.com/avatar.jpg"
-              />
-              {profile.profile_picture && (
+              <Label>Foto Profil</Label>
+              <Input type="file" accept="image/*" onChange={handleFileUpload} />
+              {/* simpan url ke hidden input agar dikirim ke action */}
+              <input type="hidden" {...register("profile_picture")} />
+              {preview && (
                 <img
-                  src={profile.profile_picture}
-                  alt="preview"
-                  className="w-20 h-20 mt-2 rounded-md object-cover border"
+                  src={preview}
+                  alt="Preview"
+                  className="w-24 h-24 mt-3 rounded-md object-cover border"
                 />
               )}
             </div>

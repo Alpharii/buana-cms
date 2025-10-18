@@ -2,7 +2,6 @@ package salesorder
 
 import (
 	"buana-cms/internal/entity"
-	"fmt"
 	"strconv"
 	"time"
 
@@ -19,7 +18,6 @@ func NewHandler(s *Service) *Handler {
 func (h *Handler) Create(c *fiber.Ctx) error {
 	// --- Ambil user_id dari JWT (sama seperti GetMyProfile)
 	userID := c.Locals("user_id")
-	fmt.Println("create order with user id", userID)
 	if userID == nil {
 		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
 	}

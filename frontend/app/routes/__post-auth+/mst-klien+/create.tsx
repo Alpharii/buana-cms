@@ -20,10 +20,8 @@ type FormData = {
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
-    console.log('action')
   const formData = await request.formData();
   const data = Object.fromEntries(formData) as FormData;
-  console.log('data',data)
   try {
     await apiClient.post("/klien", data);
     return json({ success: true });

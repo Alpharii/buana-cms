@@ -2,7 +2,6 @@ package user
 
 import (
 	"buana-cms/internal/entity"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 	"golang.org/x/crypto/bcrypt"
@@ -17,7 +16,6 @@ func NewHandler(s *Service) *Handler {
 }
 
 func (h *Handler) Register(c *fiber.Ctx) error {
-	fmt.Println("registering")
 	var data entity.User
 	if err := c.BodyParser(&data); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid input"})

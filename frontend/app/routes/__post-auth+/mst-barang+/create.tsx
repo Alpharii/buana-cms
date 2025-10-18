@@ -41,8 +41,6 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const raw = Object.fromEntries(formData);
 
-  console.log("Data yang diterima:", raw);
-
   const data = {
     nama_barang: raw.nama_barang,
     harga: parseFloat(raw.harga as string),

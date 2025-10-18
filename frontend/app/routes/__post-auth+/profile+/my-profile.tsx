@@ -48,6 +48,7 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function MyProfile() {
   const { profile, start, end } = useLoaderData<{ profile: any; start: string; end: string }>()
+  const apiUrl = import.meta.env.VITE_API_URL
   const submit = useSubmit()
   const [expanded, setExpanded] = useState<number | null>(null)
 
@@ -55,6 +56,7 @@ export default function MyProfile() {
   const userProfile = user.profile || {}
   const salesOrders = user.sales_orders || []
   const avatarLetter = user.email?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || "U"
+  const profilePicture = apiUrl + userProfile.profile_picture
 
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -72,7 +74,7 @@ export default function MyProfile() {
       <Card className="shadow-sm border border-border/40">
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-16 w-16">
-            <AvatarImage src={userProfile.profile_picture} />
+            <AvatarImage src={profilePicture} />
             <AvatarFallback>{avatarLetter}</AvatarFallback>
           </Avatar>
 

@@ -2,7 +2,7 @@ package profile
 
 import (
 	"buana-cms/internal/entity"
-	"fmt"
+	"buana-cms/pkg/utils"
 
 	"gorm.io/gorm"
 )
@@ -49,8 +49,6 @@ func (s *Service) GetProfileByUserID(userID uint) (*entity.Profile, error) {
 
 
 func (s *Service) GetUserWithProfileAndSales(id uint, start, end string) (*entity.User, error) {
-	fmt.Println("hitted service")
-
 	var user entity.User
 
 	query := s.DB.Debug().
@@ -99,10 +97,18 @@ func (s *Service) UpdateProfile(id uint, updated *entity.Profile) error {
 		return err
 	}
 
+	// jika profile_picture berasal dari folder temp → pindahkan ke public
+	finalPic := updated.ProfilePicture
+	if moved, err := utils.MoveTempImageToProfile(updated.ProfilePicture); err == nil {
+		finalPic = moved
+	} else {
+		return err
+	}
+
 	return s.DB.Model(&existing).Updates(map[string]interface{}{
 		"first_name":      updated.FirstName,
 		"last_name":       updated.LastName,
 		"company":         updated.Company,
-		"profile_picture": updated.ProfilePicture,
+		"profile_picture": finalPic,
 	}).Error
 }

@@ -12,7 +12,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!token) return redirect("/login")
 
   setApiToken(token)
-  console.log('token', token)
   try{
     const me = await apiClient.get('/users/me')
     return json(me.data)
@@ -24,7 +23,6 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export default function PostauthLayout() {
   const data: any = useLoaderData()
-  console.log(data)
   return (
     <SidebarProvider>
       <PostauthSidebar />

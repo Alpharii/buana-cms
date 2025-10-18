@@ -92,7 +92,6 @@ export default function OrderList() {
   const orders = useLoaderData<Order[]>();
   const fetcher: any = useFetcher();
   const navigate = useNavigate();
-  console.log('orders', orders)
 
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [openDetail, setOpenDetail] = useState(false);

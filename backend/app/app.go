@@ -8,6 +8,7 @@ import (
 	"buana-cms/internal/profile"
 	salesorder "buana-cms/internal/sales-order"
 	"buana-cms/internal/user"
+	uploadimage "buana-cms/internal/utils/upload-image"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -41,4 +42,8 @@ func InitModules(app *fiber.App) {
 	profileService := profile.NewService(config.DB)
 	profileHandler := profile.NewHandler(profileService)
 	profile.RegisterRoutes(api, profileHandler)
+
+	uploadImageService := uploadimage.NewService(config.DB)
+	uploadImageHandler := uploadimage.NewHandler(uploadImageService)
+	uploadimage.RegisterRoutes(api, uploadImageHandler)
 }

@@ -21,9 +21,7 @@ export default function LoginPage() {
   const { register } = useForm<FormInputs>()
 
   useEffect(() => {
-    console.log('action', actionData)
     if (actionData?.success) {
-      console.log('masuk')
       toast.success("Login Berhasil", {
         description: "Selamat datang kembali!",
       })

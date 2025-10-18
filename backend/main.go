@@ -31,12 +31,19 @@ func main() {
 	)
 
 	appInstance := fiber.New()
+
 	appInstance.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:5173", // Change later
-		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowOrigins:     "http://localhost:5173",
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+		AllowHeaders:     "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,
 	}))
+
+	// Serve file statis dari folder ./temp/image
+	appInstance.Static("/temp/image", "./temp/image")
+
+	// Serve file statis dari folder ./public/image
+	appInstance.Static("/public/image", "./public/image")
 
 	// Inisialisasi semua module
 	app.InitModules(appInstance)
