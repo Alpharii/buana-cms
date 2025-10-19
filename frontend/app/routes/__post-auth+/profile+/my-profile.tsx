@@ -108,24 +108,31 @@ export default function MyProfile() {
 
       {/* === FILTER FORM === */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <Form onSubmit={handleFilter} className="flex gap-2 items-center">
-          <Calendar className="h-4 w-4 text-muted-foreground" />
-          <input
-            type="date"
-            name="start"
-            defaultValue={start}
-            className="border rounded px-2 py-1 text-sm"
-          />
-          <span>to</span>
-          <input
-            type="date"
-            name="end"
-            defaultValue={end}
-            className="border rounded px-2 py-1 text-sm"
-          />
-          <Button type="submit" size="sm">
-            Filter
-          </Button>
+        <Form onSubmit={handleFilter} className="flex flex-col gap-2 items-start">
+          <div className="flex gap-2 items-center">
+            <Calendar className="h-4 w-4 text-muted-foreground" />
+            <input
+              type="date"
+              name="start"
+              defaultValue={start}
+              className="border rounded px-2 py-1 text-sm"
+            />
+            <span>to</span>
+            <input
+              type="date"
+              name="end"
+              defaultValue={end}
+              className="border rounded px-2 py-1 text-sm"
+            />
+            <Button type="submit" size="sm">Filter</Button>
+          </div>
+
+          {/* Tampilkan versi teks-nya */}
+          <p className="text-xs text-muted-foreground">
+            {start && end
+              ? `${format(new Date(start), "dd MMMM yyyy", { locale: localeID })} - ${format(new Date(end), "dd MMMM yyyy", { locale: localeID })}`
+              : "Pilih rentang tanggal"}
+          </p>
         </Form>
 
         <div className="flex justify-end">
