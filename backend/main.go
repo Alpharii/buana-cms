@@ -4,8 +4,10 @@ import (
 	"buana-cms/app"
 	"buana-cms/config"
 	"buana-cms/internal/entity"
+	"buana-cms/pkg/utils"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -19,7 +21,6 @@ func main() {
 
 	config.ConnectDB()
 
-	// Auto migrate all models
 	config.DB.AutoMigrate(
 		&entity.User{},
 		&entity.Profile{},
@@ -39,13 +40,17 @@ func main() {
 		AllowCredentials: true,
 	}))
 
-	// Serve file statis dari folder ./temp/image
-	appInstance.Static("/temp/image", "./temp/image")
+	// ✅ Kosongkan folder temp saat startup
+	utils.ClearTempFolder("./temp/image")
 
-	// Serve file statis dari folder ./public/image
+	// ✅ Jalankan pembersihan rutin tiap 48 jam
+	utils.ScheduleTempClear("./temp/image", 48*time.Hour)
+
+	// Serve file statis
+	appInstance.Static("/temp/image", "./temp/image")
 	appInstance.Static("/public/image", "./public/image")
 
-	// Inisialisasi semua module
+	// Inisialisasi module
 	app.InitModules(appInstance)
 
 	log.Fatal(appInstance.Listen(":" + os.Getenv("PORT")))

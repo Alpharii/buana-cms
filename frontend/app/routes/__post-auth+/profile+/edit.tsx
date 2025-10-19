@@ -91,7 +91,7 @@ export default function EditProfilePage() {
   })
   const actionData: any = useActionData<typeof action>()
   const navigate = useNavigate()
-  const [preview, setPreview] = useState(profile.profile_picture || "")
+  const [preview, setPreview] = useState(apiUrl + profile.profile_picture || "")
 
   const avatarLetter =
     profile?.first_name?.[0]?.toUpperCase() ||
@@ -127,6 +127,8 @@ export default function EditProfilePage() {
       toast.error("Gagal mengunggah gambar")
     }
   }
+
+  console.log(preview)
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-10 space-y-6">

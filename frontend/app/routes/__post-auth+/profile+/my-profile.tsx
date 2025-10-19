@@ -57,6 +57,7 @@ export default function MyProfile() {
   const salesOrders = user.sales_orders || []
   const avatarLetter = user.email?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || "U"
   const profilePicture = apiUrl + userProfile.profile_picture
+  console.log('sales', salesOrders)
 
   const handleFilter = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -126,6 +127,18 @@ export default function MyProfile() {
             Filter
           </Button>
         </Form>
+
+        <div className="flex justify-end">
+          <div className="bg-muted/40 px-4 py-2 rounded-md border text-sm">
+            <span className="font-medium mr-2">Total Sales:</span>
+            <span className="text-green-700 font-semibold">
+              Rp{" "}
+              {salesOrders
+                .reduce((acc: number, order: any) => acc + (order.total_harga || 0), 0)
+                .toLocaleString("id-ID")}
+            </span>
+          </div>
+        </div>
       </div>
 
       <Separator />
